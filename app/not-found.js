@@ -11,7 +11,7 @@ export default function NotFound() {
         <h1 className="display-font mt-4 text-7xl">PAGE NOT FOUND</h1>
 
         <p className="mt-5 text-white/50">
-          The workout or page you are looking for does not exist.
+        The workout or page you are looking for does not exist. Return to the library and keep training.
         </p>
 
         <Link
