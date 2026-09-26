@@ -15,6 +15,153 @@ import { usePlan } from "./providers";
 
 const API_URL = "https://api.abcz.workers.dev/api/fitlog";
 
+const FALLBACK_WORKOUTS = [
+  {
+    id: 1,
+    name: "Barbell Bench Press",
+    muscleGroups: ["Chest", "Arms"],
+    equipment: "Barbell, Bench",
+    difficulty: "Intermediate",
+    duration: 25,
+    caloriesBurned: 180,
+    rating: 4.8,
+    image:
+      "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 2,
+    name: "Pull-Up",
+    muscleGroups: ["Back", "Arms"],
+    equipment: "Pull-up Bar",
+    difficulty: "Intermediate",
+    duration: 15,
+    caloriesBurned: 120,
+    rating: 4.7,
+    image:
+      "https://images.unsplash.com/photo-1598971639058-fab3c3109a00?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 3,
+    name: "Back Squat",
+    muscleGroups: ["Legs", "Core"],
+    equipment: "Barbell/Rack",
+    difficulty: "Advanced",
+    duration: 30,
+    caloriesBurned: 240,
+    rating: 4.9,
+    image:
+      "https://images.unsplash.com/photo-1566241142559-40e1dab266c6?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 4,
+    name: "Overhead Press",
+    muscleGroups: ["Shoulders", "Arms"],
+    equipment: "Barbell",
+    difficulty: "Intermediate",
+    duration: 20,
+    caloriesBurned: 150,
+    rating: 4.6,
+    image:
+      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 5,
+    name: "Dumbbell Bicep Curl",
+    muscleGroups: ["Arms"],
+    equipment: "Dumbbells",
+    difficulty: "Beginner",
+    duration: 12,
+    caloriesBurned: 80,
+    rating: 4.3,
+    image:
+      "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 6,
+    name: "Hollow-Body Plank",
+    muscleGroups: ["Core"],
+    equipment: "Bodyweight",
+    difficulty: "Beginner",
+    duration: 10,
+    caloriesBurned: 60,
+    rating: 4.4,
+    image:
+      "https://images.unsplash.com/photo-1547347298-4074fc3086f0?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 7,
+    name: "Burpee",
+    muscleGroups: ["Full Body"],
+    equipment: "Bodyweight",
+    difficulty: "Intermediate",
+    duration: 12,
+    caloriesBurned: 160,
+    rating: 4.2,
+    image:
+      "https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 8,
+    name: "Conventional Deadlift",
+    muscleGroups: ["Back", "Legs"],
+    equipment: "Barbell",
+    difficulty: "Advanced",
+    duration: 28,
+    caloriesBurned: 260,
+    rating: 4.9,
+    image:
+      "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 9,
+    name: "Push-Up",
+    muscleGroups: ["Chest", "Arms", "Core"],
+    equipment: "Bodyweight",
+    difficulty: "Beginner",
+    duration: 10,
+    caloriesBurned: 90,
+    rating: 4.5,
+    image:
+      "https://images.unsplash.com/photo-1598971639058-fab3c3109a00?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 10,
+    name: "Walking Lunge",
+    muscleGroups: ["Legs"],
+    equipment: "Dumbbells (optional)",
+    difficulty: "Beginner",
+    duration: 18,
+    caloriesBurned: 170,
+    rating: 4.4,
+    image:
+      "https://images.unsplash.com/photo-1434682881908-b43d0467b798?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 11,
+    name: "Russian Twist",
+    muscleGroups: ["Core"],
+    equipment: "Medicine Ball",
+    difficulty: "Beginner",
+    duration: 8,
+    caloriesBurned: 70,
+    rating: 4.1,
+    image:
+      "https://images.unsplash.com/photo-1597452485677-d66174f4c534?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    id: 12,
+    name: "Kettlebell Swing",
+    muscleGroups: ["Full Body", "Shoulders"],
+    equipment: "Kettlebell",
+    difficulty: "Intermediate",
+    duration: 16,
+    caloriesBurned: 200,
+    rating: 4.7,
+    image:
+      "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=900&q=80",
+  },
+];
+
 function Navbar() {
   const { plan, saved } = usePlan();
 
@@ -205,27 +352,14 @@ export default function Home() {
         setWorkouts(data);
         setError("");
       } catch {
-        const storedWorkouts = localStorage.getItem("fitlog-workouts");
+        setWorkouts(FALLBACK_WORKOUTS);
 
-        if (storedWorkouts) {
-          try {
-            const cachedWorkouts = JSON.parse(storedWorkouts);
+        localStorage.setItem(
+          "fitlog-workouts",
+          JSON.stringify(FALLBACK_WORKOUTS)
+        );
 
-            if (
-              Array.isArray(cachedWorkouts) &&
-              cachedWorkouts.length > 0
-            ) {
-              setWorkouts(cachedWorkouts);
-              setError("");
-            } else {
-              setError("Could not load workouts. Please refresh the page.");
-            }
-          } catch {
-            setError("Could not load workouts. Please refresh the page.");
-          }
-        } else {
-          setError("Could not load workouts. Please refresh the page.");
-        }
+        setError("");
       } finally {
         setLoading(false);
       }
@@ -261,9 +395,7 @@ export default function Home() {
               WORKOUTS / 12
             </p>
 
-            <h2 className="display-font mt-2 text-5xl">
-              THE LIBRARY
-            </h2>
+            <h2 className="display-font mt-2 text-5xl">THE LIBRARY</h2>
 
             <p className="mt-3 text-white/50">
               Twelve lifts covering every major muscle group.
