@@ -185,35 +185,41 @@ export default function Home() {
 
   useEffect(() => {
     async function loadWorkouts() {
+      const storedWorkouts = localStorage.getItem("fitlog-workouts");
+  
+      if (storedWorkouts) {
+        try {
+          const cachedWorkouts = JSON.parse(storedWorkouts);
+  
+          if (Array.isArray(cachedWorkouts) && cachedWorkouts.length > 0) {
+            setWorkouts(cachedWorkouts);
+            setLoading(false);
+          }
+        } catch {
+          localStorage.removeItem("fitlog-workouts");
+        }
+      }
+  
       try {
         const response = await fetch(API_URL);
-
+  
         if (!response.ok) {
           throw new Error("Failed to load workouts");
         }
-
+  
         const data = await response.json();
-
+  
         localStorage.setItem("fitlog-workouts", JSON.stringify(data));
-
         setWorkouts(data);
       } catch {
-        const storedWorkouts = localStorage.getItem("fitlog-workouts");
-
-        if (storedWorkouts) {
-          try {
-            setWorkouts(JSON.parse(storedWorkouts));
-          } catch {
-            setError("Could not load workouts. Please refresh the page.");
-          }
-        } else {
+        if (!storedWorkouts) {
           setError("Could not load workouts. Please refresh the page.");
         }
       } finally {
         setLoading(false);
       }
     }
-
+  
     loadWorkouts();
   }, []);
 
