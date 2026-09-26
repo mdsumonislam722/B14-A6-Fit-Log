@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -124,7 +125,7 @@ function Hero() {
 function WorkoutCard({ workout }) {
   return (
     <Link
-    href={"/workout/" + workout.id}
+      href={"/workout/" + workout.id}
       className="group overflow-hidden rounded-xl border border-white/10 bg-[#111] transition duration-200 hover:-translate-y-1 hover:border-[#ccff00]/50"
     >
       <div className="relative h-52 overflow-hidden bg-[#191919]">
@@ -185,41 +186,51 @@ export default function Home() {
 
   useEffect(() => {
     async function loadWorkouts() {
-      const storedWorkouts = localStorage.getItem("fitlog-workouts");
-  
-      if (storedWorkouts) {
-        try {
-          const cachedWorkouts = JSON.parse(storedWorkouts);
-  
-          if (Array.isArray(cachedWorkouts) && cachedWorkouts.length > 0) {
-            setWorkouts(cachedWorkouts);
-            setLoading(false);
-          }
-        } catch {
-          localStorage.removeItem("fitlog-workouts");
-        }
-      }
-  
       try {
-        const response = await fetch(API_URL);
-  
+        const response = await fetch(API_URL, {
+          cache: "no-store",
+        });
+
         if (!response.ok) {
           throw new Error("Failed to load workouts");
         }
-  
+
         const data = await response.json();
-  
+
+        if (!Array.isArray(data) || data.length === 0) {
+          throw new Error("Invalid workout data");
+        }
+
         localStorage.setItem("fitlog-workouts", JSON.stringify(data));
         setWorkouts(data);
+        setError("");
       } catch {
-        if (!storedWorkouts) {
+        const storedWorkouts = localStorage.getItem("fitlog-workouts");
+
+        if (storedWorkouts) {
+          try {
+            const cachedWorkouts = JSON.parse(storedWorkouts);
+
+            if (
+              Array.isArray(cachedWorkouts) &&
+              cachedWorkouts.length > 0
+            ) {
+              setWorkouts(cachedWorkouts);
+              setError("");
+            } else {
+              setError("Could not load workouts. Please refresh the page.");
+            }
+          } catch {
+            setError("Could not load workouts. Please refresh the page.");
+          }
+        } else {
           setError("Could not load workouts. Please refresh the page.");
         }
       } finally {
         setLoading(false);
       }
     }
-  
+
     loadWorkouts();
   }, []);
 
