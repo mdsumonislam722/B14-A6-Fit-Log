@@ -5,11 +5,9 @@ import Link from "next/link";
 import {
   ArrowDownUp,
   ArrowRight,
-  Bookmark,
   Clock3,
   Dumbbell,
   Flame,
-  ListPlus,
   Star,
 } from "lucide-react";
 import { usePlan } from "./providers";
@@ -63,6 +61,7 @@ function Navbar() {
         <Link href="/" className="text-xs font-bold text-[#ccff00]">
           WORKOUT
         </Link>
+
         <Link href="/my-plan" className="text-xs font-bold text-white/60">
           MY PLAN
         </Link>
@@ -111,7 +110,10 @@ function Hero() {
             <p className="text-xs font-bold tracking-[0.2em] text-[#ccff00]">
               FITLOG / 2026
             </p>
-            <p className="mt-2 text-2xl font-black">TRAIN HARD. LOG HONEST.</p>
+
+            <p className="mt-2 text-2xl font-black">
+              TRAIN HARD. LOG HONEST.
+            </p>
           </div>
         </div>
       </div>
@@ -122,7 +124,7 @@ function Hero() {
 function WorkoutCard({ workout }) {
   return (
     <Link
-      href={`/workout/${workout.id}`}
+    href={"/workout/" + workout.id}
       className="group overflow-hidden rounded-xl border border-white/10 bg-[#111] transition duration-200 hover:-translate-y-1 hover:border-[#ccff00]/50"
     >
       <div className="relative h-52 overflow-hidden bg-[#191919]">
@@ -191,9 +193,22 @@ export default function Home() {
         }
 
         const data = await response.json();
+
+        localStorage.setItem("fitlog-workouts", JSON.stringify(data));
+
         setWorkouts(data);
       } catch {
-        setError("Could not load workouts. Please refresh the page.");
+        const storedWorkouts = localStorage.getItem("fitlog-workouts");
+
+        if (storedWorkouts) {
+          try {
+            setWorkouts(JSON.parse(storedWorkouts));
+          } catch {
+            setError("Could not load workouts. Please refresh the page.");
+          }
+        } else {
+          setError("Could not load workouts. Please refresh the page.");
+        }
       } finally {
         setLoading(false);
       }
@@ -219,6 +234,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#080808]">
       <Navbar />
+
       <Hero />
 
       <section id="library" className="container-fit py-20">
@@ -253,9 +269,11 @@ export default function Home() {
                 <option value="duration" className="bg-[#111]">
                   Duration
                 </option>
+
                 <option value="calories" className="bg-[#111]">
                   Calories
                 </option>
+
                 <option value="rating" className="bg-[#111]">
                   Rating
                 </option>
@@ -268,6 +286,7 @@ export default function Home() {
           <div className="flex min-h-[300px] items-center justify-center">
             <div className="text-center">
               <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/10 border-t-[#ccff00]" />
+
               <p className="mt-5 text-sm font-bold text-white/50">
                 Loading workouts…
               </p>
@@ -303,6 +322,7 @@ function Footer() {
           <span className="grid h-8 w-8 place-items-center rounded bg-[#ccff00] text-black">
             F
           </span>
+
           FITLOG
         </div>
 
